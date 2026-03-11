@@ -24,12 +24,17 @@ else:
 
     # 擷取資料並加入載入動畫
     with st.spinner('正在從 Yahoo Finance 擷取資料...'):
-        # 2330.TW 是台積電在 Yahoo Finance 的台股代號
-        df = yf.download("2330.TW", start=start_date, end=end_date)
+        # 建立 Ticker 物件
+        tsmc = yf.Ticker("2330.TW")
+        # 使用 history 方法擷取資料，並將日期轉換為字串格式
+        df = tsmc.history(start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
 
+    # 檢查是否有抓到資料
     if not df.empty:
-        # 取出收盤價
-        close_price = df['Close']
+        # 明確取出收盤價，並維持 DataFrame 格式以便 Streamlit 繪圖
+        close_price = df[['Close']]
+        # 將欄位名稱改為中文，讓圖表右上角的圖例更好看
+        close_price = close_price.rename(columns={'Close': '收盤價'})
         
         # 繪製折線圖
         st.line_chart(close_price)
